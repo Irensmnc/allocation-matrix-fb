@@ -27,6 +27,7 @@
                 v-model="username"
                 required
               ></v-text-field>
+              <p v-if="feedback">{{ feedback }}</p>
             </v-flex>
             <v-flex>
               <v-text-field
@@ -63,14 +64,19 @@
 <script>
 
 import { mapState } from 'vuex';
+import slugify from 'slugify';
+import { db } from '../main';
+import firebase from 'firebase';
 
 export default {
   data() {
     return {
       email: '',
-      username:'',
+      username: null,
       password: '',
       confirmPassword: '',
+      feedback: null,
+      slug: null,
       emailRules: [
         v => !!v || 'E-mail is required',
         v => /.+@.+/.test(v) || 'E-mail must be valid'
@@ -92,6 +98,28 @@ export default {
   },
   methods: {
     userSignUp () {
+      if (this.username){
+        this.slug = slugify(this.username, {
+          replacement: '-',
+          remove: /[$*_+~.()'"!\-:@]/g,
+          lower: true
+        });
+        let ref = db.collection('users').doc(this.slug)
+        console.log(this.slug)
+        ref.get().then(doc => {
+          console.log(doc)
+          if (doc.exists) {
+            console.log('doc exists')
+            this.feedback = 'This username already exists'
+          } else {
+            console.log('it does not')
+            this.feedback = 'This username is free to use'
+          }
+        })
+        console.log(this.slug)
+      } else {
+        this.feedback = 'You must enter a username'
+      }
       if (this.comparePasswords !== true) {
         return
       }

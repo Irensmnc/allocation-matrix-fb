@@ -10,7 +10,7 @@
       <v-card-text>
         <v-form ref="form">
           <v-text-field
-            label="Project Charge Code"
+            label="Project Name"
             v-model="cc"
             prepend-icon="folder"
             :rules="inputRules"
@@ -22,7 +22,7 @@
             :rules="inputRules"
           ></v-textarea>
           <v-textarea
-            label="Project Name"
+            label="Project Code"
             v-model="name"
             prepend-icon="edit"
             :rules="inputRules"
@@ -50,9 +50,7 @@
             <vue-pikaday
               :value="startDate"
               slot="activator"
-              label="Start date"
-              v-p-visible="visible"
-              prepend-icon="date_range"
+              placeholder="Start date"
             />
             <vue-pikaday v-model="startDate"></vue-pikaday>
           </v-menu>
@@ -60,9 +58,7 @@
             <vue-pikaday
               :value="endDate"
               slot="activator"
-              label="End date"
-              v-p-visible="visible"
-              prepend-icon="date_range"
+              placeholder="End date"
             />
             <vue-pikaday v-model="endDate"></vue-pikaday>
           </v-menu>
