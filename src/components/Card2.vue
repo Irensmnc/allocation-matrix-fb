@@ -6,11 +6,19 @@
         <v-layout row wrap class="text-xs-center ma-3">
           <v-flex xs12 sm6>
             <vue-pikaday
-              v-model="now"
+              v-model="startDate"
               v-p-visible="visible"
               placeholder="Choose an appropriate week"
               prepend-icon="date_range"
-              :value="now"
+              :value="startDate"
+            />
+          </v-flex>
+          <v-flex xs12 sm6>
+            <vue-pikaday
+              v-model="endDate"
+              placeholder="Choose an appropriate week"
+              prepend-icon="date_range"
+              :value="endDate"
             />
           </v-flex>
         </v-layout>
@@ -18,9 +26,8 @@
       </div>
     <div>
       <v-container fluid grid-list-md>
-        <v-layout row wrap class="text-xs-center ma-3">
+        <v-layout column wrap class="text-xs-center ma-3">
           <v-flex xs12 sm6 md4 lg3>
-            <h4>Total Days charged this week: {{ Cards.count }}</h4>
           </v-flex>
         </v-layout>
       </v-container>
@@ -74,12 +81,8 @@
                   <v-icon dark>remove</v-icon>
                 </v-btn>
                 <div>{{ card.count }}</div>
-                <v-btn fab dark small color="primary" @click="increment(card)">
+                <v-btn fab dark small color="primary" :disabled="haveFiveMandays" @click="increment(card)">
                   <v-icon dark>add</v-icon>
-                </v-btn>
-                <v-btn flat @click="editCard(card)">
-                  <v-icon small right></v-icon>
-                  <span>Edit</span>
                 </v-btn>
               </v-card-actions>
             </v-card>
@@ -91,7 +94,7 @@
         >Submit
         </v-btn
         >
-        <v-btn round color="primary" dark>See other projects</v-btn>
+        <v-btn round color="primary" dark @click="$router.push('AllProjects')">See other projects</v-btn>
       </div>
     </div>
   </div>
@@ -100,7 +103,7 @@
 <script>
 
   import firebase from 'firebase';
-  import { find } from 'lodash';
+  import { find, reduce } from 'lodash';
   import { mapGetters } from 'vuex';
   import '@enrian/vue-pikaday';
 
@@ -124,7 +127,8 @@
         count: 0,
         cc: '',
         content: '',
-        now: null,
+        startDate: null,
+        endDate: null,
         visible: false,
         pickWholeWeek: true
       };
@@ -134,6 +138,9 @@
       label() {
         return this.visible ? 'Hide' : 'Show';
       },
+      haveFiveMandays() {
+        return reduce(this.Cards, (sum, item) => sum + item.count, 0) >= 5;
+      }
     },
 
     methods: {
@@ -226,6 +233,7 @@
               this.projects.push({
                 id: document.doc.id,
                 ...project
+
               });
             }
           }
