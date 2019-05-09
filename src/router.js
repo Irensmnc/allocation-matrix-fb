@@ -8,6 +8,7 @@ const routerOptions = [
   { path: '/signup', component: 'Signup' },
   { path: '/card2', component: 'Card2', meta: { requiresAuth: true } },
   { path: '/allprojects', component: 'AllProjects', meta: { requiresAuth: true } },
+  { path: '/adminprojects', component: 'AdminProjects', meta: { requiresAuth: true } },
   { path: '/admin', component: 'Admin', meta: { requiresAuth: true } },
   { path: '*', component: '404' }
 ];

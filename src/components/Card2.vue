@@ -11,14 +11,7 @@
               placeholder="Choose an appropriate week"
               prepend-icon="date_range"
               :value="startDate"
-            />
-          </v-flex>
-          <v-flex xs12 sm6>
-            <vue-pikaday
-              v-model="endDate"
-              placeholder="Choose an appropriate week"
-              prepend-icon="date_range"
-              :value="endDate"
+              :options="{pickWholeWeek:true, disableWeekends:true, firstDay: 1}"
             />
           </v-flex>
         </v-layout>
