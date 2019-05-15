@@ -19,6 +19,7 @@
         >
           <template v-slot:items="props">
             <td>{{ props.item.name }}</td>
+            <td class="text-xs-right">{{ props.item.clientName }}</td>
             <td class="text-xs-right">{{ props.item.code }}</td>
             <td class="text-xs-right">{{ props.item.status }}</td>
             <td class="text-xs-right">
@@ -32,6 +33,7 @@
                 item-text="name"
                 item-value="name"
                 multiple
+                v-model="name"
               >
 
               </v-autocomplete>
@@ -39,6 +41,7 @@
             <td class="text-xs-right">
                 <v-flex xs12 sm6 md3>
                   <v-text-field
+                    v-model="days"
                     label="Days"
                   ></v-text-field>
                 </v-flex>
@@ -65,7 +68,7 @@
         <v-form ref="form">
           <v-text-field
             label="Project Name"
-            v-model="cc"
+            v-model="name"
             prepend-icon="folder"
             :rules="inputRules"
           ></v-text-field>
@@ -76,8 +79,8 @@
             :rules="inputRules"
           ></v-textarea>
           <v-textarea
-            label="Project Code"
-            v-model="name"
+            label="Charge Code"
+            v-model="code"
             prepend-icon="edit"
             :rules="inputRules"
           ></v-textarea>
@@ -89,7 +92,7 @@
           ></v-textarea>
           <v-textarea
             label="Information"
-            v-model="content"
+            v-model="info"
             prepend-icon="edit"
             :rules="inputRules"
           ></v-textarea>
@@ -111,84 +114,17 @@
             <vue-pikaday v-model="endDate"></vue-pikaday>
           </v-menu>
 
-          <v-btn flat color="#9CCC65" @click="submit" :loading="loading"
+          <v-btn flat color="#9CCC65" @click="addProject" :loading="loading"
             >Add Project</v-btn
           >
         </v-form>
       </v-card-text>
     </v-card>
   </v-dialog>
-    <v-btn round class="text-align:right" color="primary" dark @click=""
+    <v-btn round class="text-align:right" color="primary" dark @click="submit()"
     >Submit
     </v-btn
     >
-
-    <template>
-      <v-container fluid grid-list-md>
-        <v-switch v-model="expand" :label="(expand) ? 'Expand Multiple' : 'Expand Single'"></v-switch>
-        <v-data-iterator
-          :items="items"
-          item-key="name"
-          :rows-per-page-items="rowsPerPageItems"
-          :pagination.sync="pagination"
-          content-tag="v-layout"
-          :expand="expand"
-          row
-          wrap
-        >
-          <template v-slot:item="props">
-            <v-flex
-              xs12
-              sm6
-              md4
-              lg3
-            >
-              <v-card>
-                <v-card-title>
-                  <h4>{{ props.item.name }}</h4>
-                </v-card-title>
-                <v-switch
-                  v-model="props.expanded"
-                  :label="(props.expanded) ? 'Expanded' : 'Closed'"
-                  class="pl-3 mt-0"
-                ></v-switch>
-                <v-divider></v-divider>
-                <v-list v-if="props.expanded" dense>
-                  <v-list-tile>
-                    <v-list-tile-content>Zurich:</v-list-tile-content>
-                    <v-list-tile-content class="align-end">{{ props.item.zurich }}</v-list-tile-content>
-                  </v-list-tile>
-                  <v-list-tile>
-                    <v-list-tile-content>Wakanda:</v-list-tile-content>
-                    <v-list-tile-content class="align-end">{{ props.item.wakanda }}</v-list-tile-content>
-                  </v-list-tile>
-                  <v-list-tile>
-                    <v-list-tile-content>UCB:</v-list-tile-content>
-                    <v-list-tile-content class="align-end">{{ props.item.carbs }}</v-list-tile-content>
-                  </v-list-tile>
-                  <v-list-tile>
-                    <v-list-tile-content>Molo:</v-list-tile-content>
-                    <v-list-tile-content class="align-end">{{ props.item.protein }}</v-list-tile-content>
-                  </v-list-tile>
-                  <v-list-tile>
-                    <v-list-tile-content>UCI:</v-list-tile-content>
-                    <v-list-tile-content class="align-end">{{ props.item.sodium }}</v-list-tile-content>
-                  </v-list-tile>
-                  <v-list-tile>
-                    <v-list-tile-content>ACEA:</v-list-tile-content>
-                    <v-list-tile-content class="align-end">{{ props.item.calcium }}</v-list-tile-content>
-                  </v-list-tile>
-                  <v-list-tile>
-                    <v-list-tile-content>Optima:</v-list-tile-content>
-                    <v-list-tile-content class="align-end">{{ props.item.iron }}</v-list-tile-content>
-                  </v-list-tile>
-                </v-list>
-              </v-card>
-            </v-flex>
-          </template>
-        </v-data-iterator>
-      </v-container>
-    </template>
   </div>
 </template>
 
@@ -200,25 +136,20 @@ export default {
   name: 'Admin',
   data() {
     return {
-      expand: false,
-      rowsPerPageItems: [4, 8, 12],
-      pagination: {
-        rowsPerPage: 4
-      },
       autoUpdate: true,
       search: '',
       isUpdating: false,
       name: '',
-      cc: '',
-      content: '',
+      code: '',
+      info: '',
       clientName: '',
       assignedUsers: [],
-      status: '',
       user: '',
-      days: '',
       startDate: null,
       endDate: null,
       visible: false,
+      status: '',
+      days: 0,
       inputRules: [
         v => !!v || 'This field is required',
         v => v.length >= 3 || 'Minimum length is 3 characters'
@@ -235,10 +166,11 @@ export default {
           sortable: false,
           value: 'name'
         },
+        { text: 'Client Name', value: 'client' },
         { text: 'Charge Code', value: 'code' },
         { text: 'Status', value: 'status' },
         { text: 'People Assigned', value: 'people' },
-        { text: 'Days Assigned', value: 'days' },
+        { text: 'Total Days Assigned', value: 'days' },
         { text: 'Additional Information', value: 'info' }
       ],
       projects: [
@@ -250,25 +182,9 @@ export default {
           days: 4,
           info: '..'
         },
-        {
-          name: 'UCB',
-          code: 'UCB001',
-          status: 'active',
-          people: 'Irena Nemchova',
-          days: 4,
-          info: '..'
-        },
-        {
-          name: 'Zurich',
-          code: 'Zurich001',
-          status: 'active',
-          people: 'Irena Nemchova',
-          days: 4,
-          info: '..'
-        },
       ],
       people: [
-        { name: 'Irena Nemchova' },
+        { name: 'Irena Nemchova', days: 0 },
         { name: 'Jakub Golan' },
         { name: 'Michal Szaiter' },
         { name: 'Carlos' },
@@ -307,30 +223,18 @@ export default {
     },
   },
   methods: {
-    remove (item) {
-      const index = this.friends.indexOf(item.name)
-      if (index >= 0) this.friends.splice(index, 1)
-    },
     toggle() {
       this.visible = !this.visible;
     },
-    findAssignedUserByEmail(haystack, user) {
-      return find(haystack, (user) => uid === user.email, {});
-    },
-    submit() {
+    addProject() {
       const db = firebase.firestore();
-        let user = db.collection('Authentication').where('email', '==', firebase.auth().currentUser.uid).get()
-          .then(function(doc){
-        console.log(doc);
-
-          })
       if (this.$refs.form.validate()) {
         this.loading = true;
         const project = {
           name: this.name,
           clientName: this.clientName,
-          cc: this.cc,
-          content: this.content,
+          code: this.code,
+          info: this.info,
           assignedUsers: [{user: this.user, days: this.days}],
           startDate: this.startDate,
           endDate: this.endDate,
@@ -343,6 +247,18 @@ export default {
           });
       }
     },
+    submit(){
+      const db = firebase.firestore();
+      this.loading = true;
+      const assignedUsers = {
+        name: this.name,
+        days: this.days
+      };
+      db.collection('Users').add(people).then(() => {
+        this.loading = false;
+      });
+
+    },
   },
   watch: {
     isUpdating (val) {
@@ -351,11 +267,12 @@ export default {
       }
     }
   },
+
   created() {
-    db.collection('users_projects').onSnapshot(res => {
+    db.collection('projects').onSnapshot(res => {
       const changes = res.docChanges();
       changes.forEach(change => {
-        if (change.type === 'modified') {
+        if (change.type === 'added') {
           this.projects.push({
             ...change.doc.data(),
             id: change.doc.id

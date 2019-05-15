@@ -63,17 +63,17 @@
                 </template>
               </v-autocomplete>
               <v-card-text class="justify-center" v-if="card.project">
-                <div>Days charged this week: {{ card.count }}</div>
+                <div>Days charged this week: {{ card.daysCharged }}</div>
                 <br/>
                 <div>Total days assigned/charged: {{ findAssignedUser(card.project.assignedUsers, user.uid).days
                   }}/{{'Will be shown here'}}
                 </div>
               </v-card-text>
-              <v-card-actions v-model="card.count">
+              <v-card-actions v-model="card.daysCharged">
                 <v-btn fab dark small color="primary" @click="decrement(card)">
                   <v-icon dark>remove</v-icon>
                 </v-btn>
-                <div>{{ card.count }}</div>
+                <div>{{ card.daysCharged }}</div>
                 <v-btn fab dark small color="primary" :disabled="haveFiveMandays" @click="increment(card)">
                   <v-icon dark>add</v-icon>
                 </v-btn>
@@ -96,6 +96,7 @@
 <script>
 
   import firebase from 'firebase';
+  import firestore from 'firebase'
   import { find, reduce } from 'lodash';
   import { mapGetters } from 'vuex';
   import '@enrian/vue-pikaday';
@@ -103,7 +104,8 @@
   const cardTemplate = {
     project: null,
     user: null,
-    count: 0
+    daysCharged: 0,
+    cardId: '',
   };
 
   export default {
@@ -117,7 +119,7 @@
         loading: false,
         active: true,
         name: '',
-        count: 0,
+        daysCharged: 0,
         cc: '',
         content: '',
         startDate: null,
@@ -132,7 +134,7 @@
         return this.visible ? 'Hide' : 'Show';
       },
       haveFiveMandays() {
-        return reduce(this.Cards, (sum, item) => sum + item.count, 0) >= 5;
+        return reduce(this.Cards, (sum, item) => sum + item.daysCharged, 0) >= 5;
       }
     },
 
@@ -150,49 +152,39 @@
         this.visible = !this.visible;
       },
       submit() {
-        this.Cards.forEach(async (card) => {
+        this.Cards.forEach( (card) => {
           const db = firebase.firestore();
-          let countCard = card.count;
-
-         /* const exists = !(await db.collection('users_projects').where('project.id', '==', card.project.id).where('user.uid', '==', card.user.uid).get()).empty;
-
-          if(!exists) {
-            db.collection('users_projects').add(card);
-          } else {
-            db.collection("users_projects").doc(card.id).set({
-              count: countCard
-            });
-          }
-
-          console.log(exists)*/
-
-
-
-
-          db.collection("users_projects").get().then(snapshot => snapshot.forEach(doc => {
-            console.log(doc.data().project.id)
-            let currentProject = doc.data().project.id;
-            if (currentProject) {
-              let countDB = doc.data().count;
+          let ref = db.collection('users_projects');
+          let countCard = card.daysCharged;
+          ref.get().then(snapshot => snapshot.docChanges().forEach(document => {
+            let project = document.doc.data();
+            let userProject = this.findAssignedUser(project.assignedUsers, this.user.uid);
+            if (userProject) {
+              let countDB = project.assignedUsers.daysCharged;
               let result = countCard += countDB;
               db.collection("users_projects").doc(doc.id).update({
-                count: result
+                daysCharged: result,
+                userId: this.user.uid,
+                projectId: document.doc.id
               });
             } else {
-              console.log(card)
-              // db.collection('users_projects').add(card)
+              db.collection('users_projects')
+                .doc(this.user.uid).set({daysCharged: this.daysCharged, userId: this.user.uid, projectId: 'TODO'})
+                .then(() => {
+                  this.loading = false;
+                });
             }
           }));
         })
       },
     increment(card) {
-      if (card.count < 5) {
-        card.count = card.count + 0.5
+      if (card.daysCharged < 5) {
+        card.daysCharged = card.daysCharged + 0.5
       }
     },
     decrement(card) {
-      if (card.count > 0) {
-        card.count = card.count - 0.5
+      if (card.daysCharged > 0) {
+        card.daysCharged = card.daysCharged - 0.5
       }
     },
     newCard() {
@@ -222,7 +214,7 @@
           let userProject = this.findAssignedUser(project.assignedUsers, this.user.uid);
           if (userProject && userProject.user) {
             let existingProject = find(this.Cards, { id: document.doc.id });
-            if (!existingProject || existingProject.count < userProject.days) {
+            if (!existingProject || existingProject.daysCharged < userProject.days) {
               this.projects.push({
                 id: document.doc.id,
                 ...project

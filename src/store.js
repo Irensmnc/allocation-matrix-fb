@@ -28,12 +28,12 @@ export const store = new Vuex.Store({
     },
   },
   actions: {
-    userSignUp({ commit }, { email, password }) {
+    userSignUp({ commit }, { email, password, displayName }) {
       commit('setLoading', true);
       firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
-        .then(({ user }) => {
+        .then( ({ user }) => {
           console.log(user)
           commit('setUser', user)
           commit('setLoading', false);
