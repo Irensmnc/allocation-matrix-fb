@@ -5,12 +5,11 @@
         <h4>Active Projects this week:</h4>
         <v-layout row wrap class="text-xs-center ma-3">
           <v-flex xs12 sm6>
-         <!--   <vue-pikaday
-              v-show="false"
-              placeholder="Choose an appropriate week"
-              :customFormatter="formatWeek"
-              :options="{pickWholeWeek:true, disableWeekends:true, firstDay: 1, showWeekNumber: true }"
-            />-->
+            <vue-pikaday
+              v-model="date"
+              :options="{pickWholeWeek: true, toString: customFormat}"
+              data-vue-pikaday
+            ></vue-pikaday>
           </v-flex>
         </v-layout>
       </v-container>
@@ -18,8 +17,7 @@
     <div>
       <v-container fluid grid-list-md>
         <v-layout column wrap class="text-xs-center ma-3">
-          <v-flex xs12 sm6 md4 lg3>
-          </v-flex>
+          <v-flex xs12 sm6 md4 lg3></v-flex>
         </v-layout>
       </v-container>
     </div>
@@ -63,8 +61,11 @@
               <v-card-text class="justify-center" v-if="card.project">
                 <div>Days charged this week: {{ card.daysCharged }}</div>
                 <br/>
-                <div>Total days assigned/charged: {{ findAssignedUser(card.project.assignedUsers, user.uid).days
-                  }}/{{'Will be shown here'}}
+                <div>
+                  Total days assigned/charged:
+                  {{
+                  findAssignedUser(card.project.assignedUsers, user.uid).days
+                  }}/{{ 'Will be shown here' }}
                 </div>
               </v-card-text>
               <v-card-actions v-model="card.daysCharged">
@@ -72,7 +73,14 @@
                   <v-icon dark>remove</v-icon>
                 </v-btn>
                 <div>{{ card.daysCharged }}</div>
-                <v-btn fab dark small color="primary" :disabled="haveFiveMandays" @click="increment(card)">
+                <v-btn
+                  fab
+                  dark
+                  small
+                  color="primary"
+                  :disabled="haveFiveMandays"
+                  @click="increment(card)"
+                >
                   <v-icon dark>add</v-icon>
                 </v-btn>
               </v-card-actions>
@@ -81,43 +89,42 @@
         </v-layout>
       </v-container>
       <div class="text-xs-center">
-        <v-btn round color="primary" dark @click="submit()"
-        >Submit
-        </v-btn
-        >
+        <v-btn round color="primary" dark @click="submit()">Submit</v-btn>
         <v-alert
           v-model="alert"
           color="primary"
           dismissible
           transition="scale-transition"
-
         >
           Your projects have been successfully submitted.
         </v-alert>
       </div>
-     <!--   <v-btn round color="primary" dark @click="$router.push('allprojects')">See other projects</v-btn> -->
+      <!--   <v-btn round color="primary" dark @click="$router.push('allprojects')">See other projects</v-btn> -->
     </div>
   </div>
 </template>
 
 <script>
-
   import firebase from 'firebase';
   import { find, reduce } from 'lodash';
   import { mapGetters } from 'vuex';
   import '@enrian/vue-pikaday';
+  import moment from 'moment';
 
   const cardTemplate = {
     project: null,
     user: null,
     daysCharged: 0,
-    cardId: '',
+    cardId: ''
   };
 
   export default {
-    name: "Home",
+    name: 'Home',
     data() {
       return {
+        options: {
+          parse: () => moment(this.date)
+        },
         Cards: [],
         select: null,
         projects: [],
@@ -131,7 +138,7 @@
         weekOf: null,
         endDate: null,
         pickWholeWeek: true,
-        alert: false,
+        alert: false
       };
     },
     computed: {
@@ -145,16 +152,19 @@
       haveOneSelectedProject(search) {
         setTimeout(() => {
           this.Cards = this.Cards.filter(item => {
-            console.log(this.Cards)
-            return (item || '').toLowerCase().indexOf((search || '').toLowerCase()) > -1;
+            console.log(this.Cards);
+            return (
+              (item || '').toLowerCase().indexOf((search || '').toLowerCase()) >
+              -1
+            );
           });
-        }, 500)
+        }, 500);
       }
     },
 
     methods: {
-      hasItem (item) {
-        return this.selectedValues.indexOf(this.getValue(item)) > -1
+      hasItem(item) {
+        return this.selectedValues.indexOf(this.getValue(item)) > -1;
       },
       selectedProject(card) {
         return card.project ? card.project.id : null;
@@ -163,53 +173,62 @@
         card.project = find(this.projects, { id });
       },
       findAssignedUser(haystack, uid) {
-        return find(haystack, (item) => uid === item.user.id && item.days > 0, {});
+        return find(haystack, item => uid === item.user.id && item.days > 0, {});
       },
       submit() {
-        this.Cards.forEach((card) => {
+        this.Cards.forEach(card => {
           const db = firebase.firestore();
           let ref = db.collection('users_projects');
           let countCard = card.daysCharged;
-          ref.get().then(snapshot => snapshot.docChanges().forEach(document => {
-            let project = document.doc.data();
-            let userProject = this.findAssignedUser(project.assignedUsers, this.user.uid);
-            if (userProject) {
-              let countDB = project.assignedUsers.daysCharged
-              let result = countCard += countDB;
-              db.collection("users_projects").doc(doc.id).update({
-                projectsCharged: [{
-                  daysCharged: card.daysCharged,
-                  projectId: document.doc.id,
-
-                }],
-                userId: this.user.uid,
-                weekOf: this.weekOf
-              });
-            } else {
-              db.collection('users_projects')
-                .doc(this.user.uid).update({
-                projectsCharged: firebase.firestore.FieldValue.arrayUnion({
-                  daysCharged: card.daysCharged,
-                  projectId: card.project.id,
-                  projectName: card.project.name,
-                  weekOf: this.weekOf
-                })
-              })
-                .then(() => {
-                  this.alert = true
-                });
-            }
-          }));
-        })
+          ref.get().then(snapshot =>
+                           snapshot.docChanges().forEach(document => {
+                             let project = document.doc.data();
+                             let userProject = this.findAssignedUser(
+                               project.assignedUsers,
+                               this.user.uid
+                             );
+                             if (userProject) {
+                               let countDB = project.assignedUsers.daysCharged;
+                               let result = (countCard += countDB);
+                               db.collection('users_projects')
+                                 .doc(doc.id)
+                                 .update({
+                                   projectsCharged: [
+                                     {
+                                       daysCharged: card.daysCharged,
+                                       projectId: document.doc.id
+                                     }
+                                   ],
+                                   userId: this.user.uid,
+                                   weekOf: this.weekOf
+                                 });
+                             } else {
+                               db.collection('users_projects')
+                                 .doc(this.user.uid)
+                                 .update({
+                                   projectsCharged: firebase.firestore.FieldValue.arrayUnion({
+                                     daysCharged: card.daysCharged,
+                                     projectId: card.project.id,
+                                     projectName: card.project.name,
+                                     weekOf: this.weekOf
+                                   })
+                                 })
+                                 .then(() => {
+                                   this.alert = true;
+                                 });
+                             }
+                           })
+          );
+        });
       },
       increment(card) {
         if (card.daysCharged < 5) {
-          card.daysCharged = card.daysCharged + 0.5
+          card.daysCharged = card.daysCharged + 0.5;
         }
       },
       decrement(card) {
         if (card.daysCharged > 0) {
-          card.daysCharged = card.daysCharged - 0.5
+          card.daysCharged = card.daysCharged - 0.5;
         }
       },
       newCard() {
@@ -223,14 +242,19 @@
         // Simulated ajax query
         setTimeout(() => {
           this.projects = this.projects.filter(item => {
-            return (item || '').toLowerCase().indexOf((search || '').toLowerCase()) > -1;
+            return (
+              (item || '').toLowerCase().indexOf((search || '').toLowerCase()) >
+              -1
+            );
           });
           this.loading = false;
         }, 500);
       },
-      /*formatWeek(date) {
-        return "";
-      }*/
+      customFormat(date, format) {
+        const start = moment(date, format).day(1);
+        const end = moment(date, format).day(5);
+        return `${ start.format(format) } - ${ end.format(format) }`;
+      },
     },
     created() {
       const db = firebase.firestore();
@@ -239,22 +263,26 @@
       ref.onSnapshot(snapshot => {
         snapshot.docChanges().forEach(document => {
           let project = document.doc.data();
-          let userProject = this.findAssignedUser(project.assignedUsers, this.user.uid);
+          let userProject = this.findAssignedUser(
+            project.assignedUsers,
+            this.user.uid
+          );
           if (userProject && userProject.user) {
             let existingProject = find(this.Cards, { id: document.doc.id });
-            if (!existingProject || existingProject.daysCharged < userProject.days) {
+            if (
+              !existingProject ||
+              existingProject.daysCharged < userProject.days
+            ) {
               this.projects.push({
                 id: document.doc.id,
                 ...project
-
               });
             }
           }
         });
       });
     }
-  }
-
+  };
 </script>
 <style>
   .topright {

@@ -26,7 +26,11 @@
         <v-toolbar-side-icon @click="sidebar = !sidebar"> </v-toolbar-side-icon>
       </span>
       <v-toolbar-title>
-        <router-link :to="{name: LANDING_ROUTE}" tag="span" style="cursor: pointer">
+        <router-link
+          :to="{ name: LANDING_ROUTE }"
+          tag="span"
+          style="cursor: pointer"
+        >
           {{ appTitle }}
         </router-link>
       </v-toolbar-title>

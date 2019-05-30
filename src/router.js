@@ -3,29 +3,44 @@ import Router from 'vue-router';
 import firebase from 'firebase';
 
 export const LANDING_ROUTE = 'landing';
+export const SIGNIN_ROUTE = 'signin';
+export const SIGNUP_ROUTE = 'signup';
+export const HOME_ROUTE = 'home';
+export const ALLPROJECTS_ROUTE = 'allprojects';
+export const PROJECTUSERS_ROUTE = 'projectusers';
+export const PROJECTS_ROUTE = 'projects';
 // create constants for other routes and use it everywhere as ":to={name: ROUTE_CONSTANT}"
 
 const routerOptions = [
   { path: '/', component: 'Landing', name: LANDING_ROUTE },
-  { path: '/signin', component: 'Signin' },
-  { path: '/signup', component: 'Signup' },
-  { path: '/home', component: 'Home', meta: { requiresAuth: true } },
-  { path: '/allprojects', component: 'AllProjects', meta: { requiresAuth: true } },
+  { path: '/signin', component: 'Signin', name: SIGNIN_ROUTE },
+  { path: '/signup', component: 'Signup', name: SIGNUP_ROUTE },
+  { path: '/home', component: 'Home', name: HOME_ROUTE, meta: { requiresAuth: true } },
   {
-    path: '/admin/project/:id/users',
-    name: 'project-users',
-    component: 'ProjectProfile',
+    path: '/allprojects',
+    component: 'AllProjects',
+    name: ALLPROJECTS_ROUTE,
     meta: { requiresAuth: true }
   },
-  { path: '/projectprofile', component: 'ProjectProfile', meta: { requiresAuth: true } },
-  { path: '/admin', component: 'Admin', meta: { requiresAuth: true } },
+  {
+    path: '/admin/project/:id/users',
+    component: 'admin/ProjectUsers',
+    name: PROJECTUSERS_ROUTE,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin/projects',
+    component: 'admin/Projects',
+    name: PROJECTS_ROUTE,
+    meta: { requiresAuth: true }
+  },
   { path: '*', component: '404' }
 ];
 
 const routes = routerOptions.map(route => {
   return {
     ...route,
-    component: () => import(`@/components/${ route.component }.vue`)
+    component: () => import(`@/pages/${route.component}.vue`)
   };
 });
 

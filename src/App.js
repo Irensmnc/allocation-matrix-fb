@@ -3,6 +3,7 @@ import { mapGetters } from 'vuex';
 import { LANDING_ROUTE } from '@/router';
 
 export default {
+  name: 'App',
   data() {
     return {
       appTitle: 'Time App',

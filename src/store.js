@@ -25,7 +25,7 @@ export const store = new Vuex.Store({
     },
     setLoading(state, payload) {
       state.loading = payload;
-    },
+    }
   },
   actions: {
     userSignUp({ commit }, { email, password, displayName }) {
@@ -33,42 +33,43 @@ export const store = new Vuex.Store({
       firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
-        .then( ({ user }) => {
-          console.log(user)
-          commit('setUser', user)
+        .then(({ user }) => {
+          console.log(user);
+          commit('setUser', user);
           commit('setLoading', false);
           router.push('/home');
         })
         .catch(error => {
           commit('setUser', null);
-          commit('setError', alert (error.message));
-          console.log(error.message)
+          commit('setError', alert(error.message));
+          console.log(error.message);
           commit('setLoading', false);
           router.push('/');
         });
     },
     userSignIn({ commit }, { email, password }) {
       commit('setLoading', true);
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(email, password)
-        // .then(({ user }) => {
-        //   commit('setUser', user)
-        //   commit('setLoading', false);
-        //   router.push('/home');
-        // })
-        // .catch(error => {
-        //   commit('setError', error.message);
-        //   console.log(error.message)
-        //   commit('setLoading', false);
-        //   router.push('/');
-        // });
+      firebase.auth().signInWithEmailAndPassword(email, password);
+      // .then(({ user }) => {
+      //   commit('setUser', user)
+      //   commit('setLoading', false);
+      //   router.push('/home');
+      // })
+      // .catch(error => {
+      //   commit('setError', error.message);
+      //   console.log(error.message)
+      //   commit('setLoading', false);
+      //   router.push('/');
+      // });
     },
     userSignOut({ commit }) {
-      firebase.auth().signOut().then(() => {
-        commit('setUser', null);
-        router.push('/');
-      })
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          commit('setUser', null);
+          router.push('/');
+        })
         .catch(() => {
           commit('setUser', null);
           router.push('/');
@@ -76,7 +77,7 @@ export const store = new Vuex.Store({
     },
     autoSignIn({ commit }, payload) {
       commit('setUser', payload);
-    },
+    }
   },
   getters: {
     user(state) {
