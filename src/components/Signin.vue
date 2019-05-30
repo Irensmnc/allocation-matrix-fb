@@ -50,6 +50,7 @@
         emailRules: [
           v => !!v || 'E-mail is required',
           v => /.+@.+/.test(v) || 'E-mail must be valid'
+          // reuse validEmail validator
         ],
         passwordRules: [
           v => !!v || 'Password is required',
@@ -59,16 +60,17 @@
         ]
       };
     },
+    computed: {
+      ...mapState(['error', 'loading'])
+    },
     methods: {
       userSignIn() {
+        // same like in signup, let error from action propagate upwards, catch and react here
         this.$store.dispatch('userSignIn', {
           email: this.email,
           password: this.password
         });
       }
     },
-    computed: {
-      ...mapState(['error', 'loading'])
-    }
   };
 </script>

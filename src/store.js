@@ -52,17 +52,17 @@ export const store = new Vuex.Store({
       firebase
         .auth()
         .signInWithEmailAndPassword(email, password)
-        .then(({ user }) => {
-          commit('setUser', user)
-          commit('setLoading', false);
-          router.push('/home');
-        })
-        .catch(error => {
-          commit('setError', error.message);
-          console.log(error.message)
-          commit('setLoading', false);
-          router.push('/');
-        });
+        // .then(({ user }) => {
+        //   commit('setUser', user)
+        //   commit('setLoading', false);
+        //   router.push('/home');
+        // })
+        // .catch(error => {
+        //   commit('setError', error.message);
+        //   console.log(error.message)
+        //   commit('setLoading', false);
+        //   router.push('/');
+        // });
     },
     userSignOut({ commit }) {
       firebase.auth().signOut().then(() => {
