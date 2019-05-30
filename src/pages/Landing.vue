@@ -10,7 +10,9 @@
             When you try to build an app for developers <br />
             who have professional experience equivalent to your age. <br />
           </strong>
-          <v-img src="https://media.giphy.com/media/115k4KUWBwCNmU/giphy.gif"></v-img>
+          <v-img
+            src="https://media.giphy.com/media/115k4KUWBwCNmU/giphy.gif"
+          ></v-img>
         </blockquote>
       </v-flex>
       <v-flex xs12 sm6 offset-sm3 class="text-xs-center" mt-5>

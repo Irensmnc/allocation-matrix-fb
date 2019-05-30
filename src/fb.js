@@ -16,13 +16,10 @@ db.settings({ timestampsInSnapshots: true });
 
 export default db;*/
 
-
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
 import 'firebase/storage';
-
-
 
 firebase.initializeApp();
 
@@ -56,7 +53,7 @@ export const createUserProfileDocument = async (user, additionalData) => {
         email,
         photoURL,
         createdAt,
-        ...additionalData,
+        ...additionalData
       });
     } catch (error) {
       console.error('Error creating user', error.message);
