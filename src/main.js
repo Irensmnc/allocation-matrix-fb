@@ -1,20 +1,15 @@
 import Vue from 'vue';
-import App from './App';
-import router from './router';
-import Vuetify from 'vuetify';
-import { store } from './store';
 import firebase from 'firebase/app';
+import Vuetify from 'vuetify';
 import 'firebase/firestore';
-import DateFilter from './filters/date';
-import VuePikaday from '@enrian/vue-pikaday'
+import VuePikaday from '@enrian/vue-pikaday';
 
 import '@enrian/vue-pikaday/dist/vue-pikaday.min.css';
-
-
-
 import 'vuetify/dist/vuetify.min.css';
-import colors from 'vuetify/es5/util/colors';
-import { ActionContext as $store } from 'vuex';
+
+import App from './App';
+import router from './router';
+import { store } from './store';
 
 Vue.use(Vuetify, {
   theme: {
@@ -22,7 +17,6 @@ Vue.use(Vuetify, {
   }
 });
 Vue.use(VuePikaday);
-Vue.filter('date', DateFilter);
 
 firebase.initializeApp({
   apiKey: 'AIzaSyAKxjzDxBeRzRwechEP5eT5pN9ZhU7Ap7o',
@@ -34,6 +28,7 @@ firebase.initializeApp({
 });
 
 Vue.config.productionTip = false;
+
 export const db = firebase.firestore();
 
 /* eslint-disable no-new */
@@ -51,4 +46,3 @@ const unsubscribe = firebase.auth().onAuthStateChanged((firebaseUser) => {
   });
   unsubscribe();
 });
-

@@ -63,98 +63,48 @@
 
 <script>
 
-import { mapState } from 'vuex';
-import { auth, createUserProfileDocument } from 'firebase';
-import slugify from 'slugify';
-import { db } from '../main';
-import firebase from 'firebase';
-import functions from 'firebase/functions'
+  import { mapState } from 'vuex';
+  import { validEmail } from '@/services/validators';
 
-export default {
-  data() {
-    return {
-      email: '',
-      password: '',
-      displayName: '',
-      confirmPassword: '',
-      feedback: null,
-      slug: null,
-      emailRules: [
-        v => !!v || 'E-mail is required',
-        v => /.+@.+/.test(v) || 'E-mail must be valid'
-      ],
-      passwordRules: [
-        v => !!v || 'Password is required',
-        v =>
-          v.length >= 6 ||
-          'Password must be greater than 6 characters'
-      ]
-    };
-  },
-  computed: {
-    ...mapState(['error', 'loading']),
-
-    comparePasswords() {
-      return this.password === this.confirmPassword ? true : 'Passwords don\'t match'
+  export default {
+    data() {
+      return {
+        email: '',
+        password: '',
+        displayName: '',
+        confirmPassword: '',
+        feedback: null,
+        slug: null,
+        error: false,
+        emailRules: [
+          v => !!v || 'E-mail is required',
+          validEmail
+        ],
+        passwordRules: [
+          v => !!v || 'Password is required',
+          v =>
+            v.length >= 6 ||
+            'Password must be greater than 6 characters'
+        ]
+      };
     },
-  },
-  methods: {
-    /*   handleSubmit = async event => {
-      event.preventDefault();
+    computed: {
+      ...mapState(['error', 'loading']),
 
-      const {this.email, this.password, this.displayName };
-
-      try {
-        const { user } = await auth.createUserWithEmailAndPassword(email, password)
+      comparePasswords() {
+        return this.password === this.confirmPassword ? true : 'Passwords don\'t match'
       },
-      createUserProfileDocument(user, { displayName });
-    } catch (error) {
-      console.error(error);
-    }
-
-    this.setState({ displayName: '', email: '', password: '' });
-};*/
-    userSignUp() {
-     /* if (this.displayName && this.email && this.password) {
-        this.slug = slugify(this.displayName, {
-          replacement: '-',
-          remove: /[$*_+~.()'"!\-:@]/g,
-          lower: true
-        });
-        let createProfile = firebase.functions().httpsCallable('createProfile')
-        createProfile({ userRecord: this.userRecord }).then(result => {
-          console.log(result)
-        })
-        /*  if (doc.exists) {
-            console.log('doc exists')
-            this.feedback = 'This username already exists'
-          } else {
-            firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-              .then(user => {
-                ref.set({
-                  username: this.username,
-                  user_id: user.uid
-                })
-              }).then(() => {
-              this.$router.push({ name: 'card2' })
-            }).catch(error => {
-              this.feedback = error.message
-            })
-            console.log('it does not')
-            this.feedback = 'This username is free to use'
-          }
-        })
-        console.log(this.slug)*/
-     /* } else {
-        this.feedback = 'You must enter a all fields'
-      }
-      if (this.comparePasswords !== true) {
-        return
-      } */
-      this.$store.dispatch('userSignUp', { email: this.email, password: this.password })
-      this.$router.push('/home')
     },
+    methods: {
+      userSignUp() {
+        try {
+          this.$store.dispatch('userSignUp', { email: this.email, password: this.password });
+        } catch (e) {
+          // set variable "error" to true and display error in template
+        }
+        this.$router.push('/home')
+      },
+    }
   }
-      }
 
 </script>

@@ -26,7 +26,7 @@
         <v-toolbar-side-icon @click="sidebar = !sidebar"> </v-toolbar-side-icon>
       </span>
       <v-toolbar-title>
-        <router-link to="/" tag="span" style="cursor: pointer">
+        <router-link :to="{name: LANDING_ROUTE}" tag="span" style="cursor: pointer">
           {{ appTitle }}
         </router-link>
       </v-toolbar-title>
@@ -48,33 +48,4 @@
   </v-app>
 </template>
 
-<script>
-  import { mapGetters } from 'vuex'
-
-  export default {
-    data() {
-      return {
-        appTitle: 'Time App',
-        sidebar: false,
-      };
-    },
-    computed: {
-      ...mapGetters(['isAuthenticated']),
-      menuItems() {
-        if (this.isAuthenticated) {
-          return [{ title: 'Home', path: '/home', icon: 'user' }];
-        } else {
-          return [
-            { title: 'Sign Up', path: '/signup', icon: 'face' },
-            { title: 'Sign In', path: '/signin', icon: 'lock_open' }
-          ];
-        }
-      }
-    },
-    methods: {
-      userSignOut() {
-        this.$store.dispatch('userSignOut');
-      }
-    }
-  };
-</script>
+<script src="./App.js"></script>
