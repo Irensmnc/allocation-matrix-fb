@@ -20,11 +20,11 @@
             </v-flex>
             <v-flex>
               <v-text-field
-                name="username"
-                label="Username"
-                id="username"
+                name="displayName"
+                label="Display Name"
+                id="displayName"
                 type="text"
-                v-model="username"
+                v-model="displayName"
                 required
               ></v-text-field>
               <p v-if="feedback">{{ feedback }}</p>
@@ -64,16 +64,18 @@
 <script>
 
 import { mapState } from 'vuex';
+import { auth, createUserProfileDocument } from 'firebase';
 import slugify from 'slugify';
 import { db } from '../main';
 import firebase from 'firebase';
+import functions from 'firebase/functions'
 
 export default {
   data() {
     return {
       email: '',
-      username: null,
       password: '',
+      displayName: '',
       confirmPassword: '',
       feedback: null,
       slug: null,
@@ -92,40 +94,67 @@ export default {
   computed: {
     ...mapState(['error', 'loading']),
 
-    comparePasswords () {
+    comparePasswords() {
       return this.password === this.confirmPassword ? true : 'Passwords don\'t match'
     },
   },
   methods: {
-    userSignUp () {
-      if (this.username){
-        this.slug = slugify(this.username, {
+    /*   handleSubmit = async event => {
+      event.preventDefault();
+
+      const {this.email, this.password, this.displayName };
+
+      try {
+        const { user } = await auth.createUserWithEmailAndPassword(email, password)
+      },
+      createUserProfileDocument(user, { displayName });
+    } catch (error) {
+      console.error(error);
+    }
+
+    this.setState({ displayName: '', email: '', password: '' });
+};*/
+    userSignUp() {
+     /* if (this.displayName && this.email && this.password) {
+        this.slug = slugify(this.displayName, {
           replacement: '-',
           remove: /[$*_+~.()'"!\-:@]/g,
           lower: true
         });
-        let ref = db.collection('users').doc(this.slug)
-        console.log(this.slug)
-        ref.get().then(doc => {
-          console.log(doc)
-          if (doc.exists) {
+        let createProfile = firebase.functions().httpsCallable('createProfile')
+        createProfile({ userRecord: this.userRecord }).then(result => {
+          console.log(result)
+        })
+        /*  if (doc.exists) {
             console.log('doc exists')
             this.feedback = 'This username already exists'
           } else {
+            firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
+              .then(user => {
+                ref.set({
+                  username: this.username,
+                  user_id: user.uid
+                })
+              }).then(() => {
+              this.$router.push({ name: 'card2' })
+            }).catch(error => {
+              this.feedback = error.message
+            })
             console.log('it does not')
             this.feedback = 'This username is free to use'
           }
         })
-        console.log(this.slug)
-      } else {
-        this.feedback = 'You must enter a username'
+        console.log(this.slug)*/
+     /* } else {
+        this.feedback = 'You must enter a all fields'
       }
       if (this.comparePasswords !== true) {
         return
-      }
-      this.$store.dispatch('userSignUp', { email: this.email, password: this.password });
-      this.$router.push('/card')
-    }
+      } */
+      this.$store.dispatch('userSignUp', { email: this.email, password: this.password })
+      this.$router.push('/home')
+    },
   }
-};
+      }
+
 </script>

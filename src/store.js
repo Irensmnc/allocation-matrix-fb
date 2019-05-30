@@ -28,20 +28,21 @@ export const store = new Vuex.Store({
     },
   },
   actions: {
-    userSignUp({ commit }, { email, password }) {
+    userSignUp({ commit }, { email, password, displayName }) {
       commit('setLoading', true);
       firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
-        .then(({ user }) => {
+        .then( ({ user }) => {
           console.log(user)
           commit('setUser', user)
           commit('setLoading', false);
-          router.push('/card2');
+          router.push('/home');
         })
         .catch(error => {
           commit('setUser', null);
-          commit('setError', error.message);
+          commit('setError', alert (error.message));
+          console.log(error.message)
           commit('setLoading', false);
           router.push('/');
         });
@@ -54,10 +55,11 @@ export const store = new Vuex.Store({
         .then(({ user }) => {
           commit('setUser', user)
           commit('setLoading', false);
-          router.push('/card2');
+          router.push('/home');
         })
         .catch(error => {
           commit('setError', error.message);
+          console.log(error.message)
           commit('setLoading', false);
           router.push('/');
         });
