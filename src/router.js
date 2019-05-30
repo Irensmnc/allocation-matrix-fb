@@ -6,9 +6,10 @@ const routerOptions = [
   { path: '/', component: 'Landing' },
   { path: '/signin', component: 'Signin' },
   { path: '/signup', component: 'Signup' },
-  { path: '/card2', component: 'Card2', meta: { requiresAuth: true } },
+  { path: '/home', component: 'Home', meta: { requiresAuth: true } },
   { path: '/allprojects', component: 'AllProjects', meta: { requiresAuth: true } },
-  { path: '/adminprojects', component: 'AdminProjects', meta: { requiresAuth: true } },
+  { path: '/admin/project/:id/users', name: 'project-users', component: 'ProjectProfile', meta: { requiresAuth: true } },
+  { path: '/projectprofile', component: 'ProjectProfile', meta: { requiresAuth: true } },
   { path: '/admin', component: 'Admin', meta: { requiresAuth: true } },
   { path: '*', component: '404' }
 ];

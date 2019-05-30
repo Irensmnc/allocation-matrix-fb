@@ -37,11 +37,12 @@ export const store = new Vuex.Store({
           console.log(user)
           commit('setUser', user)
           commit('setLoading', false);
-          router.push('/card2');
+          router.push('/home');
         })
         .catch(error => {
           commit('setUser', null);
-          commit('setError', error.message);
+          commit('setError', alert (error.message));
+          console.log(error.message)
           commit('setLoading', false);
           router.push('/');
         });
@@ -54,10 +55,11 @@ export const store = new Vuex.Store({
         .then(({ user }) => {
           commit('setUser', user)
           commit('setLoading', false);
-          router.push('/card2');
+          router.push('/home');
         })
         .catch(error => {
           commit('setError', error.message);
+          console.log(error.message)
           commit('setLoading', false);
           router.push('/');
         });

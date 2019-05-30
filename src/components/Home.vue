@@ -5,18 +5,16 @@
         <h4>Active Projects this week:</h4>
         <v-layout row wrap class="text-xs-center ma-3">
           <v-flex xs12 sm6>
-            <vue-pikaday
-              v-model="startDate"
-              v-p-visible="visible"
+         <!--   <vue-pikaday
+              v-show="false"
               placeholder="Choose an appropriate week"
-              prepend-icon="date_range"
-              :value="startDate"
-              :options="{pickWholeWeek:true, disableWeekends:true, firstDay: 1}"
-            />
+              :customFormatter="formatWeek"
+              :options="{pickWholeWeek:true, disableWeekends:true, firstDay: 1, showWeekNumber: true }"
+            />-->
           </v-flex>
         </v-layout>
       </v-container>
-      </div>
+    </div>
     <div>
       <v-container fluid grid-list-md>
         <v-layout column wrap class="text-xs-center ma-3">
@@ -87,8 +85,17 @@
         >Submit
         </v-btn
         >
-        <v-btn round color="primary" dark @click="$router.push('AllProjects')">See other projects</v-btn>
+        <v-alert
+          v-model="alert"
+          color="primary"
+          dismissible
+          transition="scale-transition"
+
+        >
+          Your projects have been successfully submitted.
+        </v-alert>
       </div>
+     <!--   <v-btn round color="primary" dark @click="$router.push('allprojects')">See other projects</v-btn> -->
     </div>
   </div>
 </template>
@@ -96,7 +103,6 @@
 <script>
 
   import firebase from 'firebase';
-  import firestore from 'firebase'
   import { find, reduce } from 'lodash';
   import { mapGetters } from 'vuex';
   import '@enrian/vue-pikaday';
@@ -109,7 +115,7 @@
   };
 
   export default {
-    name: "Card2",
+    name: "Home",
     data() {
       return {
         Cards: [],
@@ -122,10 +128,10 @@
         daysCharged: 0,
         cc: '',
         content: '',
-        startDate: null,
+        weekOf: null,
         endDate: null,
-        visible: false,
-        pickWholeWeek: true
+        pickWholeWeek: true,
+        alert: false,
       };
     },
     computed: {
@@ -135,10 +141,21 @@
       },
       haveFiveMandays() {
         return reduce(this.Cards, (sum, item) => sum + item.daysCharged, 0) >= 5;
+      },
+      haveOneSelectedProject(search) {
+        setTimeout(() => {
+          this.Cards = this.Cards.filter(item => {
+            console.log(this.Cards)
+            return (item || '').toLowerCase().indexOf((search || '').toLowerCase()) > -1;
+          });
+        }, 500)
       }
     },
 
     methods: {
+      hasItem (item) {
+        return this.selectedValues.indexOf(this.getValue(item)) > -1
+      },
       selectedProject(card) {
         return card.project ? card.project.id : null;
       },
@@ -148,11 +165,8 @@
       findAssignedUser(haystack, uid) {
         return find(haystack, (item) => uid === item.user.id && item.days > 0, {});
       },
-      toggle() {
-        this.visible = !this.visible;
-      },
       submit() {
-        this.Cards.forEach( (card) => {
+        this.Cards.forEach((card) => {
           const db = firebase.firestore();
           let ref = db.collection('users_projects');
           let countCard = card.daysCharged;
@@ -160,50 +174,64 @@
             let project = document.doc.data();
             let userProject = this.findAssignedUser(project.assignedUsers, this.user.uid);
             if (userProject) {
-              let countDB = project.assignedUsers.daysCharged;
+              let countDB = project.assignedUsers.daysCharged
               let result = countCard += countDB;
               db.collection("users_projects").doc(doc.id).update({
-                daysCharged: result,
+                projectsCharged: [{
+                  daysCharged: card.daysCharged,
+                  projectId: document.doc.id,
+
+                }],
                 userId: this.user.uid,
-                projectId: document.doc.id
+                weekOf: this.weekOf
               });
             } else {
               db.collection('users_projects')
-                .doc(this.user.uid).set({daysCharged: this.daysCharged, userId: this.user.uid, projectId: 'TODO'})
+                .doc(this.user.uid).update({
+                projectsCharged: firebase.firestore.FieldValue.arrayUnion({
+                  daysCharged: card.daysCharged,
+                  projectId: card.project.id,
+                  projectName: card.project.name,
+                  weekOf: this.weekOf
+                })
+              })
                 .then(() => {
-                  this.loading = false;
+                  this.alert = true
                 });
             }
           }));
         })
       },
-    increment(card) {
-      if (card.daysCharged < 5) {
-        card.daysCharged = card.daysCharged + 0.5
-      }
+      increment(card) {
+        if (card.daysCharged < 5) {
+          card.daysCharged = card.daysCharged + 0.5
+        }
+      },
+      decrement(card) {
+        if (card.daysCharged > 0) {
+          card.daysCharged = card.daysCharged - 0.5
+        }
+      },
+      newCard() {
+        this.Cards.push({ ...cardTemplate, user: this.user });
+      },
+      removeCard() {
+        this.Cards.pop();
+      },
+      querySelections(search) {
+        this.loading = true;
+        // Simulated ajax query
+        setTimeout(() => {
+          this.projects = this.projects.filter(item => {
+            return (item || '').toLowerCase().indexOf((search || '').toLowerCase()) > -1;
+          });
+          this.loading = false;
+        }, 500);
+      },
+      /*formatWeek(date) {
+        return "";
+      }*/
     },
-    decrement(card) {
-      if (card.daysCharged > 0) {
-        card.daysCharged = card.daysCharged - 0.5
-      }
-    },
-    newCard() {
-      this.Cards.push({ ...cardTemplate, user: this.user });
-    },
-    removeCard() {
-      this.Cards.pop();
-    },
-    querySelections(search) {
-      this.loading = true;
-      // Simulated ajax query
-      setTimeout(() => {
-        this.projects = this.projects.filter(item => {
-          return (item || '').toLowerCase().indexOf((search || '').toLowerCase()) > -1;
-        });
-        this.loading = false;
-      }, 500);
-    }
-  },
     created() {
       const db = firebase.firestore();
       let ref = db.collection('projects');

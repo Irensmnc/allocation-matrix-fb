@@ -152,7 +152,7 @@ export default {
         return
       } */
       this.$store.dispatch('userSignUp', { email: this.email, password: this.password })
-      this.$router.push('/card')
+      this.$router.push('/home')
     },
   }
       }

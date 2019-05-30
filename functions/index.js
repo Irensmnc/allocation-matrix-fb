@@ -24,5 +24,5 @@ const createProfile = (userRecord, context) => {
 });*/
 
 module.exports = {
-  authOnCreate: functions.auth.user().onCreate(createProfile),
+  authOnCreate: functions.auth.user().onCreate(createProfile)
 };

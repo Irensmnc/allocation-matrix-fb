@@ -62,7 +62,7 @@
       ...mapGetters(['isAuthenticated']),
       menuItems() {
         if (this.isAuthenticated) {
-          return [{ title: 'Card2', path: '/card2', icon: 'user' }];
+          return [{ title: 'Home', path: '/home', icon: 'user' }];
         } else {
           return [
             { title: 'Sign Up', path: '/signup', icon: 'face' },
