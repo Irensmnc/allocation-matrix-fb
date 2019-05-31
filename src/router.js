@@ -8,16 +8,21 @@ export const SIGNUP_ROUTE = 'signup';
 export const HOME_ROUTE = 'home';
 export const ALLPROJECTS_ROUTE = 'allprojects';
 export const PROJECTUSERS_ROUTE = 'projectusers';
-export const PROJECTS_ROUTE = 'projects';
+export const ADMIN_PROJECTS_ROUTE = 'projects';
 // create constants for other routes and use it everywhere as ":to={name: ROUTE_CONSTANT}"
 
 const routerOptions = [
   { path: '/', component: 'Landing', name: LANDING_ROUTE },
   { path: '/signin', component: 'Signin', name: SIGNIN_ROUTE },
   { path: '/signup', component: 'Signup', name: SIGNUP_ROUTE },
-  { path: '/home', component: 'Home', name: HOME_ROUTE, meta: { requiresAuth: true } },
   {
-    path: '/allprojects',
+    path: '/home',
+    component: 'Home',
+    name: HOME_ROUTE,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/allprojects/allprojects',
     component: 'AllProjects',
     name: ALLPROJECTS_ROUTE,
     meta: { requiresAuth: true }
@@ -31,7 +36,7 @@ const routerOptions = [
   {
     path: '/admin/projects',
     component: 'admin/Projects',
-    name: PROJECTS_ROUTE,
+    name: ADMIN_PROJECTS_ROUTE,
     meta: { requiresAuth: true }
   },
   { path: '*', component: '404' }
