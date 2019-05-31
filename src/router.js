@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import firebase from 'firebase';
+import { firebase } from '@/fb';
 
 export const LANDING_ROUTE = 'landing';
 export const SIGNIN_ROUTE = 'signin';

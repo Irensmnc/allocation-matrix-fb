@@ -1,5 +1,4 @@
-import { db } from '@/main';
-import firebase from 'firebase';
+import { firebase, db } from '@/fb';
 
 export default {
   name: 'ProjectUsers',
@@ -33,7 +32,6 @@ export default {
   },
   methods: {
     assignUsers() {
-      const db = firebase.firestore();
       this.loading = true;
       db.collection('projects')
         .doc(this.$route.params.id)

@@ -1,8 +1,8 @@
-import firebase from 'firebase';
+import moment from 'moment';
 import { find, reduce } from 'lodash';
 import { mapGetters } from 'vuex';
-import '@enrian/vue-pikaday';
-import moment from 'moment';
+
+import { db, firebase } from '@/fb';
 
 const cardTemplate = {
   project: null,
@@ -74,7 +74,6 @@ export default {
     },
     submit() {
       this.Cards.forEach(card => {
-        const db = firebase.firestore();
         let ref = db.collection('users_projects');
         let countCard = card.daysCharged;
         ref.get().then(snapshot =>
@@ -154,7 +153,6 @@ export default {
     }
   },
   created() {
-    const db = firebase.firestore();
     let ref = db.collection('projects');
 
     ref.onSnapshot(snapshot => {

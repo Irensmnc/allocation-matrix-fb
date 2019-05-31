@@ -1,4 +1,4 @@
-import db from '@/fb';
+// import db from '@/fb';
 
 export default {
   name: 'allprojects',
@@ -9,15 +9,15 @@ export default {
   },
   methods: {
     loadData() {
-      this.projects = [];
-      db.collection('projects').onSnapshot(res => {
-        res.forEach(doc => {
-          this.projects.push({
-            ...doc.data(),
-            id: doc.id
-          });
-        });
-      });
+      // this.projects = [];
+      // db.collection('projects').onSnapshot(res => {
+      //   res.forEach(doc => {
+      //     this.projects.push({
+      //       ...doc.data(),
+      //       id: doc.id
+      //     });
+      //   });
+      // });
     }
   },
   computed: {

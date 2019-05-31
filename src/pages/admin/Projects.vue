@@ -12,59 +12,6 @@
           hide-details
         ></v-text-field>
       </v-card-title>
-      <v-dialog v-model="dialog" max-width="500px">
-        <template v-slot:activator="{ on }"> </template>
-        <v-card>
-          <v-card-text>
-            <v-container grid-list-md>
-              <v-layout wrap>
-                <v-flex xs12 sm6 md4>
-                  <v-text-field
-                    v-model="editedItem.name"
-                    label="Project Name"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-text-field
-                    v-model="editedItem.clientName"
-                    label="Client Name"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-text-field
-                    v-model="editedItem.projectLead"
-                    label="Project Lead"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-text-field
-                    v-model="editedItem.code"
-                    label="Code"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-text-field
-                    v-model="editedItem.status"
-                    label="Status"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 sm6 md4>
-                  <v-text-field
-                    v-model="editedItem.info"
-                    label="Additional Information"
-                  ></v-text-field>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" flat @click="close">Cancel</v-btn>
-            <v-btn color="primary" flat @click="save">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
       <v-data-table :headers="headers" :items="projects" :search="search">
         <template v-slot:items="props">
           <td>{{ props.item.name }}</td>
@@ -105,73 +52,72 @@
       </v-data-table>
     </v-card>
 
-    <v-dialog max-width="600px" v-model="dialog1">
+    <v-dialog max-width="600px" v-model="displayItemDialog">
       <template v-slot:activator="{ on }">
-        <v-btn flat color="light-green lighten-1" v-on="on"
-          >Add a new Project
-        </v-btn>
+        <v-btn flat color="light-green lighten-1" v-on="on">Add a new Project</v-btn>
       </template>
       <v-card>
         <v-card-title>
-          <h4>Add a new Project</h4>
+          <h4 v-if="editing">Edit project</h4>
+          <h4 v-else>Add a new Project</h4>
         </v-card-title>
         <v-card-text>
           <v-form ref="form">
             <v-text-field
               label="Project Name"
-              v-model="addDialogForm.name"
+              v-model="editedItem.name"
               prepend-icon="folder"
               :rules="inputRules"
             ></v-text-field>
             <v-textarea
               label="Client Name"
-              v-model="addDialogForm.clientName"
+              v-model="editedItem.clientName"
               prepend-icon="edit"
               :rules="inputRules"
             ></v-textarea>
             <v-textarea
               label="Project Lead"
-              v-model="addDialogForm.projectLead"
+              v-model="editedItem.projectLead"
               prepend-icon="edit"
               :rules="inputRules"
             ></v-textarea>
             <v-textarea
               label="Charge Code"
-              v-model="addDialogForm.code"
+              v-model="editedItem.code"
               prepend-icon="edit"
               :rules="inputRules"
             ></v-textarea>
             <v-textarea
               label="Status"
-              v-model="addDialogForm.status"
+              v-model="editedItem.status"
               prepend-icon="edit"
               :rules="inputRules"
             ></v-textarea>
             <v-textarea
               label="Information"
-              v-model="addDialogForm.info"
+              v-model="editedItem.info"
               prepend-icon="edit"
               :rules="inputRules"
             ></v-textarea>
 
             <v-menu>
               <vue-pikaday
-                v-model="addDialogForm.startDate"
+                v-model="editedItem.startDate"
                 slot="activator"
                 placeholder="Start date"
               ></vue-pikaday>
             </v-menu>
             <v-menu>
               <vue-pikaday
-                v-model="addDialogForm.endDate"
+                v-model="editedItem.endDate"
                 slot="activator"
                 placeholder="End date"
               />
             </v-menu>
           </v-form>
-          <v-btn flat color="#9CCC65" @click="addProject" :loading="loading"
-            >Add Project
-          </v-btn>
+          <v-btn v-if="editing" flat color="#9CCC65" @click="save" :loading="loading">Save</v-btn>
+          <v-btn v-else flat color="#9CCC65" @click="addProject" :loading="loading">Create</v-btn>
+          <v-btn flat color="#cccccc" @click="close">Close</v-btn>
         </v-card-text>
       </v-card>
     </v-dialog>
