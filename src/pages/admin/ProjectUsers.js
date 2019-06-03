@@ -32,19 +32,7 @@ export default {
   },
   methods: {
     assignUsers() {
-      this.loading = true;
-      db.collection('projects')
-        .doc(this.$route.params.id)
-        .update({
-          people: firebase.firestore.FieldValue.arrayUnion({
-            userAssigned: this.userAssigned,
-            daysAssigned: this.daysAssigned,
-            displayName: this.displayName
-          })
-        })
-        .then(() => {
-          this.loading = false;
-        });
+      this.$store.dispatch('admin/assignProjectsAsAdmin')
     },
     save() {
       this.snack = true;

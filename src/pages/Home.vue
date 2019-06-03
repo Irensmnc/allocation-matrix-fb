@@ -4,34 +4,27 @@
       <v-container fluid grid-list-md>
         <h4>Active Projects this week:</h4>
         <v-layout row wrap class="text-xs-center ma-3">
-          <v-flex xs12 sm6>
-            <vue-pikaday
-              v-model="date"
-              :options="options"
-              data-vue-pikaday
-            ></vue-pikaday>
-          </v-flex>
+          <div class="v-input v-text-field v-text-field--single-line v-input--hide-details theme--light">
+            <div class="v-input__control">
+              <div class="v-input__slot">
+                <div class="v-text-field__slot">
+                  <vue-pikaday
+                    v-model="date"
+                    :options="pikadayOptions"
+                    data-vue-pikaday
+                    placeholder="Pick a week"
+                  ></vue-pikaday>
+                </div>
+              </div>
+            </div>
+          </div>
         </v-layout>
       </v-container>
     </div>
     <div>
-      <v-container fluid grid-list-md>
-        <v-layout column wrap class="text-xs-center ma-3">
-          <v-flex xs12 sm6 md4 lg3></v-flex>
-        </v-layout>
-      </v-container>
-    </div>
-    <div>
-      <v-btn fab dark small color="primary" @click="newCard" left>
-        <v-icon dark>add</v-icon>
-        <label>Add a new Project Card</label>
-      </v-btn>
-      <v-btn fab dark small color="primary" @click="removeCard" left>
-        <v-icon dark>remove</v-icon>
-      </v-btn>
       <v-container fluid grid-list-md>
         <v-layout row wrap>
-          <v-flex xs12 sm6 md4 lg3 v-for="card in Cards" :key="card.id">
+          <v-flex xs12 sm6 md4 lg3 v-for="card in matrix" :key="card.id">
             <v-card flat class="text-xs-center ma-3">
               <v-card-title>Project selection</v-card-title>
               <v-autocomplete
@@ -88,6 +81,13 @@
           </v-flex>
         </v-layout>
       </v-container>
+      <v-btn fab dark small color="primary" @click="newCard" left>
+        <v-icon dark>add</v-icon>
+        <label>Add a new Project Card</label>
+      </v-btn>
+      <v-btn fab dark small color="primary" @click="removeCard" left>
+        <v-icon dark>remove</v-icon>
+      </v-btn>
       <div class="text-xs-center">
         <v-btn round color="primary" dark @click="submit()">Submit</v-btn>
         <v-alert
@@ -99,7 +99,6 @@
           Your projects have been successfully submitted.
         </v-alert>
       </div>
-      <!--   <v-btn round color="primary" dark @click="$router.push('allprojects')">See other projects</v-btn> -->
     </div>
   </div>
 </template>

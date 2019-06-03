@@ -57,7 +57,7 @@ const router = new Router({
 });
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = firebase.auth().currentUser;
+  const isAuthenticated = true; // connect to auth user
   const requiresAuth = to.meta.requiresAuth;
   if (requiresAuth && !isAuthenticated) {
     next('/signin');

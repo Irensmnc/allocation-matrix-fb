@@ -1,64 +1,49 @@
 import moment from 'moment';
 import { find, reduce } from 'lodash';
-import { mapGetters } from 'vuex';
-
-import { db, firebase } from '@/fb';
-
-const cardTemplate = {
-  project: null,
-  user: null,
-  daysCharged: 0,
-  cardId: ''
-};
+import { mapGetters, mapState } from 'vuex';
+import '@enrian/vue-pikaday';
 
 export default {
   name: 'Home',
   data() {
     return {
       date: null,
-      options: {
+      pikadayOptions: {
         parse: () => moment(this.date),
         pickWholeWeek: true,
         toString: this.customFormat,
         disableWeekends: true
       },
-      Cards: [],
       select: null,
-      projects: [],
       search: null,
       loading: false,
       active: true,
-      name: '',
       daysCharged: 0,
-      cc: '',
-      content: '',
-      weekOf: null,
-      endDate: null,
       pickWholeWeek: true,
       alert: false
     };
   },
   computed: {
     ...mapGetters(['isAuthenticated', 'user']),
+    ...mapState('user', ['matrix']),
+    ...mapState('project', {
+      projects: state => state.list || []
+    }),
     label() {
       return this.visible ? 'Hide' : 'Show';
     },
     haveFiveMandays() {
-      return reduce(this.Cards, (sum, item) => sum + item.daysCharged, 0) >= 5;
+      return reduce(this.matrix, (sum, item) => sum + item.daysCharged, 0) >= 5;
     },
     haveOneSelectedProject(search) {
-      setTimeout(() => {
-        this.Cards = this.Cards.filter(item => {
-          console.log(this.Cards);
-          return (
-            (item || '').toLowerCase().indexOf((search || '').toLowerCase()) >
-            -1
-          );
-        });
-      }, 500);
+      return this.matrix.filter(item => {
+        return (
+          (item || '').toLowerCase().indexOf((search || '').toLowerCase()) >
+          -1
+        );
+      });
     }
   },
-
   methods: {
     hasItem(item) {
       return this.selectedValues.indexOf(this.getValue(item)) > -1;
@@ -73,49 +58,7 @@ export default {
       return find(haystack, item => uid === item.user.id && item.days > 0, {});
     },
     submit() {
-      this.Cards.forEach(card => {
-        let ref = db.collection('users_projects');
-        let countCard = card.daysCharged;
-        ref.get().then(snapshot =>
-          snapshot.docChanges().forEach(document => {
-            let project = document.doc.data();
-            let userProject = this.findAssignedUser(
-              project.assignedUsers,
-              this.user.uid
-            );
-            if (userProject) {
-              let countDB = project.assignedUsers.daysCharged;
-              let result = (countCard += countDB);
-              db.collection('users_projects')
-                .doc(doc.id)
-                .update({
-                  projectsCharged: [
-                    {
-                      daysCharged: card.daysCharged,
-                      projectId: document.doc.id
-                    }
-                  ],
-                  userId: this.user.uid,
-                  weekOf: this.weekOf
-                });
-            } else {
-              db.collection('users_projects')
-                .doc(this.user.uid)
-                .update({
-                  projectsCharged: firebase.firestore.FieldValue.arrayUnion({
-                    daysCharged: card.daysCharged,
-                    projectId: card.project.id,
-                    projectName: card.project.name,
-                    weekOf: this.weekOf
-                  })
-                })
-                .then(() => {
-                  this.alert = true;
-                });
-            }
-          })
-        );
-      });
+      this.$store.dispatch('user/saveMatrix');
     },
     increment(card) {
       if (card.daysCharged < 5) {
@@ -128,10 +71,9 @@ export default {
       }
     },
     newCard() {
-      this.Cards.push({ ...cardTemplate, user: this.user });
+      // call vuex easy access array splice
     },
     removeCard() {
-      this.Cards.pop();
     },
     querySelections(search) {
       this.loading = true;
@@ -149,32 +91,7 @@ export default {
     customFormat(date, format) {
       const start = moment(date, format).day(1);
       const end = moment(date, format).day(5);
-      return `${start.format(format)} - ${end.format(format)}`;
+      return `${ start.format(format) } - ${ end.format(format) }`;
     }
-  },
-  created() {
-    let ref = db.collection('projects');
-
-    ref.onSnapshot(snapshot => {
-      snapshot.docChanges().forEach(document => {
-        let project = document.doc.data();
-        let userProject = this.findAssignedUser(
-          project.assignedUsers,
-          this.user.uid
-        );
-        if (userProject && userProject.user) {
-          let existingProject = find(this.Cards, { id: document.doc.id });
-          if (
-            !existingProject ||
-            existingProject.daysCharged < userProject.days
-          ) {
-            this.projects.push({
-              id: document.doc.id,
-              ...project
-            });
-          }
-        }
-      });
-    });
   }
 };

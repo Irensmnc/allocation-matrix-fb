@@ -5,19 +5,19 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
-// const createProfile = (userRecord, context) => {
-//   const { email, displayName, uid } = userRecord;
-//
-//   return db
-//     .collection('users')
-//     .doc(uid)
-//     .set({ email, displayName })
-//     .catch(console.error);
-// };
-//
-// module.exports = {
-//   authOnCreate: functions.auth.user().onCreate(createProfile)
-// };
+const createProfile = (userRecord, context) => {
+  const { email, displayName, uid } = userRecord;
+
+  return db
+    .collection('users')
+    .doc(uid)
+    .set({ email, displayName })
+    .catch(console.error);
+};
+
+module.exports = {
+  authOnCreate: functions.auth.user().onCreate(createProfile)
+};
 
 
 exports.addAdminRole =  functions.https.onCall((data, context) => {

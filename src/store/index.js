@@ -5,6 +5,10 @@ import * as actions from './actions';
 import * as mutations from './mutations';
 import * as getters from './getters';
 
+import admin from '@/store/modules/admin';
+import user from '@/store/modules/user';
+import project from '@/store/modules/project';
+
 Vue.use(Vuex);
 
 const state = {
@@ -12,13 +16,16 @@ const state = {
   error: null,
   loading: false,
   cards: [],
-  user: null
+  user: null,
+  projects: [],
 };
 
 export default new Vuex.Store({
-  namespaced: true,
   state,
   mutations,
   actions,
-  getters
+  getters,
+  modules: {
+    admin, user, project
+  }
 });

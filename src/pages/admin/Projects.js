@@ -1,5 +1,5 @@
-import { firebase, db } from '@/fb';
 import { PROJECTUSERS_ROUTE } from '@/router';
+import { mapState } from 'vuex';
 
 const DEFAULT_ITEM = {
   name: null,
@@ -23,7 +23,6 @@ export default {
       editing: false,
       displayItemDialog: false,
       loading: false,
-      projects: [],
       editedItem: {
         ...DEFAULT_ITEM
       },
@@ -51,48 +50,21 @@ export default {
       ]
     };
   },
+  computed: {
+    ...mapState(['admin/projects'])
+  },
   created() {
     this.registerDataObserver();
   },
   methods: {
-    async addProject() {
-      if (!this.$refs.form.validate()) {
-        return;
-      }
-
-      this.loading = true;
-
-      await db.collection('projects').add(this.editedItem);
-
-      this.alert = true;
-      this.loading = false;
-
-      this.close();
+    addProject() {
+      this.$store.dispatch('admin/addProjectAsAdmin')
     },
-    async deleteProject(item) {
-      if (!confirm('Are you sure you want to delete this item?')) {
-        return;
-      }
-
-      await db
-        .collection('projects')
-        .doc(item.id)
-        .delete();
+    deleteProject() {
+      this.$store.dispatch('admin/deleteProjectAsAdmin')
     },
     async assignUsers() {
-      this.loading = true;
-
-      await db.collection('projects')
-        .doc(this.$route.params.id)
-        .update({
-          people: firebase.firestore.FieldValue.arrayUnion({
-            userAssigned: this.userAssigned,
-            daysAssigned: this.daysAssigned,
-            displayName: this.displayName
-          })
-        });
-
-      this.loading = false;
+      this.$store.dispatch('admin/assignProjectsAsAdmin')
     },
     editItem(item) {
       this.$refs.form.reset();
@@ -105,31 +77,11 @@ export default {
       this.displayItemDialog = false;
       this.editedItem = { ...DEFAULT_ITEM };
     },
-    async save() {
-      if (!this.$refs.form.validate()) {
-        return;
-      }
-
-      await db
-        .collection('projects')
-        .doc(this.editedItem.id)
-        .set(this.editedItem);
-
-      this.close();
+    save() {
+      this.$store.dispatch('admin/saveEditedProjects')
     },
     registerDataObserver() {
-      db.collection('projects').onSnapshot(res => {
-        this.projects = [];
-
-        res.forEach(doc => {
-          this.projects.push({
-            ...doc.data(),
-            id: doc.id
-          });
-        });
-
-        this.loading = false;
-      });
+      this.$store.dispatch('fetchProjects')
     }
   }
 };

@@ -1,5 +1,9 @@
 import * as firebase from 'firebase';
 import router from '@/router';
+import { find } from 'lodash';
+import api from '@/services/api'
+
+import { Firestore as db } from 'firebase';
 
 export function userSignUp({ commit }, { email, password, displayName }) {
   commit('SET_LOADING', true);
@@ -52,3 +56,4 @@ export function userSignOut({ commit }) {
 export function autoSignIn({ commit }, payload) {
   commit('SET_USER', payload);
 }
+

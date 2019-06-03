@@ -8,7 +8,6 @@ import 'vuetify/dist/vuetify.min.css';
 import App from '@/App.vue';
 import router from '@/router';
 import store from '@/store';
-import { firebase } from '@/fb';
 
 Vue.use(Vuetify, {
   theme: {
@@ -20,17 +19,9 @@ Vue.use(VuePikaday);
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
-const unsubscribe = firebase.auth().onAuthStateChanged(firebaseUser => {
-  new Vue({
-    el: '#app',
-    router,
-    store,
-    render: h => h(App),
-    created() {
-      if (firebaseUser) {
-        store.dispatch('autoSignIn', firebaseUser);
-      }
-    }
-  });
-  unsubscribe();
+new Vue({
+  el: '#app',
+  router,
+  store,
+  render: h => h(App)
 });
